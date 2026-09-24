@@ -1,17 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-     <title>Mis Tareas</title>
-</head>
-<body>
-    <h1>Mis Tareas</h1>
+    <meta charset="UTF-8">
 
-    <ul>
-        {% for tarea in tareas %}
-        <li>
-            {{tarea.titulo}} - {{tarea.descripcion}}
-        </li>
-        {% endfor %}
-    </ul>
+    <title>Mis Tareas</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .contenedor {
+            width: 80%;
+            margin: 40px auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .acciones {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .tarea {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .tarea h2 {
+            margin-top: 0;
+        }
+
+        .botones {
+            margin-top: 15px;
+        }
+
+        .botones a {
+            margin-right: 10px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <h1>📝 Mis Tareas</h1>
+
+    <div class="acciones">
+        <a href="{% url 'crear_tarea' %}" class="boton">
+            ➕ Nueva tarea
+        </a>
+    </div>
+
+    {% for tarea in tareas %}
+
+        <div class="tarea">
+
+            <h2>{{ tarea.titulo }}</h2>
+
+            <p>
+                {{ tarea.descripcion }}
+            </p>
+
+            <p>
+                <strong>Estado:</strong>
+
+                {% if tarea.completada %}
+                    Completada ✅
+                {% else %}
+                    Pendiente ⏳
+                {% endif %}
+            </p>
+
+            <div class="botones">
+
+                <a href="#">
+                    👁️ Ver
+                </a>
+
+                <a href="#">
+                    ✏️ Editar
+                </a>
+
+                <a href="#">
+                    🗑️ Eliminar
+                </a>
+
+            </div>
+
+        </div>
+
+    {% empty %}
+
+        <p>No existen tareas registradas.</p>
+
+    {% endfor %}
+
+</div>
+
 </body>
 </html>

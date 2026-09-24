@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear tarea</title>
+</head>
+<body>
+
+    <h1>Crear nueva tarea</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label for="titulo">Título:</label>
+        <br>
+        <input type="text" id="titulo" name="titulo" required>
+
+        <br><br>
+
+        <label for="descripcion">Descripción:</label>
+        <br>
+        <textarea id="descripcion" name="descripcion" required></textarea>
+
+        <br><br>
+
+        <label>
+            <input type="checkbox" name="completada">
+            Tarea completada
+        </label>
+
+        <br><br>
+
+        <button type="submit">
+            Guardar tarea
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/">Volver al inicio</a>
+
+</body>
+</html>
