@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar tarea</title>
+    <title>Detalle de tarea</title>
 
     <style>
         body {
@@ -15,135 +14,118 @@
         }
 
         .contenedor {
-            max-width: 700px;
-            margin: auto;
-            background: white;
+            max-width: 650px;
+            margin: 30px auto;
             padding: 30px;
+            background-color: white;
             border-radius: 10px;
         }
 
         h1 {
             text-align: center;
+            color: #333;
         }
 
-        label {
+        .campo {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .etiqueta {
             display: block;
-            margin-top: 15px;
             font-weight: bold;
+            margin-bottom: 8px;
         }
 
-        input[type="text"],
-        textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
+        .valor {
+            overflow-wrap: anywhere;
         }
 
         .botones {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
-        button, .volver {
-            padding: 11px 16px;
-            border: none;
-            border-radius: 5px;
+        .boton {
+            display: inline-block;
+            padding: 12px 18px;
             color: white;
-            cursor: pointer;
             text-decoration: none;
-            font-size: 15px;
-        }
-
-        .guardar {
-            background-color: #198754;
-        }
-
-        .actualizar-estado {
-            background-color: #0d6efd;
+            border-radius: 5px;
         }
 
         .volver {
             background-color: #333;
         }
 
+        .editar {
+            background-color: #0d6efd;
+        }
+
         #mensaje {
-            margin-top: 15px;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
     <main class="contenedor">
-        <h1>✏️ Editar tarea</h1>
+        <h1>📋 Detalle de tarea</h1>
 
-        <p id="mensaje">Cargando tarea...</p>
+        <p id="mensaje">Cargando información...</p>
 
-        <form id="formEditar" hidden>
-            <label for="titulo">Título:</label>
-            <input
-                type="text"
-                id="titulo"
-                required
-                maxlength="100"
-            >
+        <section id="datosTarea" hidden>
+            <div class="campo">
+                <span class="etiqueta">ID:</span>
+                <span id="id" class="valor"></span>
+            </div>
 
-            <label for="descripcion">Descripción:</label>
-            <textarea id="descripcion" required></textarea>
+            <div class="campo">
+                <span class="etiqueta">Título:</span>
+                <span id="titulo" class="valor"></span>
+            </div>
 
-            <label>
-                <input type="checkbox" id="completada">
-                Tarea completada
-            </label>
+            <div class="campo">
+                <span class="etiqueta">Descripción:</span>
+                <span id="descripcion" class="valor"></span>
+            </div>
+
+            <div class="campo">
+                <span class="etiqueta">Estado:</span>
+                <span id="estado" class="valor"></span>
+            </div>
 
             <div class="botones">
-                <button type="submit" class="guardar">
-                    Guardar todos los cambios (PUT)
-                </button>
-
-                <button
-                    type="button"
-                    id="btnPatch"
-                    class="actualizar-estado"
-                >
-                    Actualizar solo el estado (PATCH)
-                </button>
-
-                <a href="/tareas/" class="volver">
+                <a href="/tareas/" class="boton volver">
                     Volver al listado
                 </a>
+
+                <a id="enlaceEditar" class="boton editar">
+                    Editar tarea
+                </a>
             </div>
-        </form>
+        </section>
     </main>
 
     <script>
         const token = sessionStorage.getItem('token');
 
-        // Obtenemos el ID desde la URL /editar/5/
+        // Obtener el ID desde la URL /detalle/5/
         const partesURL = window.location.pathname
             .split('/')
             .filter(Boolean);
 
         const tareaId = partesURL[partesURL.length - 1];
 
-        const formulario = document.getElementById('formEditar');
-        const campoTitulo = document.getElementById('titulo');
-        const campoDescripcion = document.getElementById('descripcion');
-        const campoCompletada = document.getElementById('completada');
         const mensaje = document.getElementById('mensaje');
-        const btnPatch = document.getElementById('btnPatch');
+        const datosTarea = document.getElementById('datosTarea');
 
-        // Consultar la tarea y cargar los datos en el formulario.
-        async function cargarTarea() {
+        async function cargarDetalle() {
             if (!token) {
                 window.location.href = '/';
                 return;
@@ -169,87 +151,25 @@
 
                 if (!respuesta.ok) {
                     throw new Error(
-                        `No se pudo cargar la tarea. HTTP ${respuesta.status}`
+                        `No se pudo consultar la tarea. HTTP ${respuesta.status}`
                     );
                 }
 
                 const tarea = await respuesta.json();
 
-                campoTitulo.value = tarea.titulo;
-                campoDescripcion.value = tarea.descripcion;
-                campoCompletada.checked = tarea.completada;
+                document.getElementById('id').textContent = tarea.id;
+                document.getElementById('titulo').textContent = tarea.titulo;
+                document.getElementById('descripcion').textContent =
+                    tarea.descripcion;
 
-                formulario.hidden = false;
-                mensaje.textContent = `Editando tarea #${tarea.id}`;
+                document.getElementById('estado').textContent =
+                    tarea.completada ? 'Completada' : 'Pendiente';
 
-            } catch (error) {
-                console.error(error);
-                mensaje.textContent = error.message;
-            }
-        }
+                document.getElementById('enlaceEditar').href =
+                    `/editar/${tarea.id}/`;
 
-        // PUT: enviar todos los campos de la tarea.
-        formulario.addEventListener('submit', async function(evento) {
-            evento.preventDefault();
-
-            const datos = {
-                titulo: campoTitulo.value.trim(),
-                descripcion: campoDescripcion.value.trim(),
-                completada: campoCompletada.checked
-            };
-
-            if (!datos.titulo || !datos.descripcion) {
-                mensaje.textContent =
-                    'El título y la descripción son obligatorios.';
-                return;
-            }
-
-            await enviarActualizacion('PUT', datos);
-        });
-
-        // PATCH: modificar solamente el estado de la tarea.
-        btnPatch.addEventListener('click', async function() {
-            await enviarActualizacion('PATCH', {
-                completada: campoCompletada.checked
-            });
-        });
-
-        async function enviarActualizacion(metodo, datos) {
-            mensaje.textContent = 'Guardando cambios...';
-
-            try {
-                const respuesta = await fetch(
-                    `/api/tareas/${tareaId}/`,
-                    {
-                        method: metodo,
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Token ${token}`
-                        },
-                        body: JSON.stringify(datos)
-                    }
-                );
-
-                if (respuesta.status === 401 ||
-                    respuesta.status === 403) {
-                    sessionStorage.removeItem('token');
-                    window.location.href = '/';
-                    return;
-                }
-
-                if (!respuesta.ok) {
-                    const error = await respuesta.json();
-                    throw new Error(
-                        error.error || error.mensaje ||
-                        `Error HTTP ${respuesta.status}`
-                    );
-                }
-
-                mensaje.textContent =
-                    'Tarea actualizada correctamente.';
-
-                // Redirigir después de mostrar el resultado.
-                window.location.href = '/tareas/';
+                datosTarea.hidden = false;
+                mensaje.textContent = '';
 
             } catch (error) {
                 console.error(error);
@@ -257,7 +177,7 @@
             }
         }
 
-        cargarTarea();
+        cargarDetalle();
     </script>
 </body>
 </html>
